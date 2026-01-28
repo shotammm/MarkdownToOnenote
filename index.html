@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>Markdown → OneNote HTML 変換</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="./style.css" />
+  <!-- シンプルなMarkdownパーサ（marked）をCDNから読み込み -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <h1>Markdown 変換ツール</h1>
+    <p class="subtitle">左にMarkdownを貼り付けるとリアルタイムに変換され、OneNote用 / Slack用のどちらかをコピーできます。</p>
+  </header>
+
+  <main class="app-main">
+    <section class="pane pane-input">
+      <h2 class="pane-title">Markdown入力</h2>
+      <textarea id="markdown-input" class="textarea" placeholder="# 見出し&#10;- 箇条書き&#10;**太字** や [リンク](https://example.com) など"></textarea>
+    </section>
+
+    <section class="pane pane-output">
+      <h2 class="pane-title">OneNote向けHTML</h2>
+      <div class="output-group">
+        <div class="output-column">
+          <h3 class="output-title">プレビュー</h3>
+          <div id="html-preview" class="preview"></div>
+        </div>
+        <div class="output-column">
+          <h3 class="output-title">HTMLソース（確認用）</h3>
+          <textarea id="html-output" class="textarea textarea-output" readonly></textarea>
+          <button id="copy-onenote-button" class="button">OneNote用としてコピー</button>
+          <button id="copy-slack-button" class="button">Slack用としてコピー</button>
+          <div id="status-message" class="status-message" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>OneNote用はリッチテキストとして、Slack用はMarkdownテキストとしてコピーされます。</p>
+  </footer>
+
+  <script src="./main.js"></script>
+</body>
+</html>
+
