@@ -99,6 +99,20 @@ body {
   user-select: none;
 }
 
+.button-onenote {
+  background: #7719aa;
+  border-color: #7719aa;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.button-slack {
+  background: #2eb67d;
+  border-color: #2eb67d;
+  color: #ffffff;
+  font-weight: 600;
+}
+
 .button.primary {
   background: #2563eb;
   border-color: #2563eb;
@@ -238,4 +252,3 @@ body {
     margin-top: 8px;
   }
 }
-
