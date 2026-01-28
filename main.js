@@ -49,6 +49,69 @@
     return result;
   }
 
+  const headingAllowlist = new Set(["決定事項", "アクション", "重要な共有事項"]);
+
+  function stripBoldSyntax(text) {
+    if (!text) return text;
+    return text.replace(/\*\*(.+?)\*\*/g, "$1").replace(/__(.+?)__/g, "$1");
+  }
+
+  function stripBoldSyntaxOutsideCode(text) {
+    if (!text) return text;
+
+    const codeSpanPattern = /(`+)([\s\S]*?)\1/g;
+    let result = "";
+    let lastIndex = 0;
+    let match = codeSpanPattern.exec(text);
+
+    while (match) {
+      const [fullMatch] = match;
+      const start = match.index;
+      const end = start + fullMatch.length;
+      const before = text.slice(lastIndex, start);
+      result += stripBoldSyntax(before);
+      result += fullMatch;
+      lastIndex = end;
+      match = codeSpanPattern.exec(text);
+    }
+
+    result += stripBoldSyntax(text.slice(lastIndex));
+    return result;
+  }
+
+  function removeBoldExceptAllowedHeadings(markdown) {
+    if (!markdown) return "";
+
+    let inCodeBlock = false;
+    return markdown
+      .split(/\r?\n/)
+      .map((line) => {
+        const fenceMatch = line.match(/^(\s*)(`{3,}|~{3,})/);
+        if (fenceMatch) {
+          inCodeBlock = !inCodeBlock;
+          return line;
+        }
+
+        if (inCodeBlock) {
+          return line;
+        }
+
+        const headingMatch = line.match(/^(#{1,6})\s+(.*)$/);
+        if (headingMatch) {
+          const prefix = headingMatch[1];
+          const headingText = headingMatch[2].trim();
+          const normalizedHeading = stripBoldSyntaxOutsideCode(headingText).trim();
+          if (headingAllowlist.has(normalizedHeading)) {
+            return line;
+          }
+          return `${prefix} ${stripBoldSyntaxOutsideCode(headingMatch[2])}`;
+        }
+
+        return stripBoldSyntaxOutsideCode(line);
+      })
+      .join("\n");
+  }
+
   // Slackで見やすくなるように、GitHub風Markdownを軽く変換する
   // - 見出し記号 (#, ##, ###...) を外して行全体を太字に
   // - **bold** 記法を Slack 形式の *bold* に変換
@@ -109,7 +172,7 @@
 
   function convertMarkdown() {
     clearStatus();
-    const markdown = markdownInput.value || "";
+    const markdown = removeBoldExceptAllowedHeadings(markdownInput.value || "");
 
     if (!markdown.trim()) {
       htmlPreview.innerHTML = "";
@@ -188,7 +251,7 @@
 
   async function copyForSlack() {
     clearStatus();
-    const rawMarkdown = (markdownInput.value || "").trim();
+    const rawMarkdown = removeBoldExceptAllowedHeadings(markdownInput.value || "").trim();
 
     if (!rawMarkdown) {
       showStatus("コピーするMarkdownがありません。入力してください。", "error");
@@ -229,4 +292,3 @@
   // 初期表示も空入力として一度変換しておく
   convertMarkdown();
 })();
-
