@@ -21,6 +21,10 @@ body {
   padding: 16px 24px;
   background: #ffffff;
   border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .app-header h1 {
@@ -32,6 +36,12 @@ body {
   margin: 0;
   font-size: 13px;
   color: #666;
+}
+
+.app-header-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .app-main {
@@ -117,6 +127,14 @@ body {
   background: #2563eb;
   border-color: #2563eb;
   color: #ffffff;
+}
+
+.button-prompt {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .button:hover {
