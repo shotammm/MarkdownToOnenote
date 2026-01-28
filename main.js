@@ -6,9 +6,17 @@
   const htmlOutput = document.getElementById("html-output");
   const copyOnenoteButton = document.getElementById("copy-onenote-button");
   const copySlackButton = document.getElementById("copy-slack-button");
+  const copyMeetingPromptButton = document.getElementById("copy-meeting-prompt-button");
   const statusMessage = document.getElementById("status-message");
 
-  if (!markdownInput || !htmlPreview || !htmlOutput || !copyOnenoteButton || !copySlackButton) {
+  if (
+    !markdownInput ||
+    !htmlPreview ||
+    !htmlOutput ||
+    !copyOnenoteButton ||
+    !copySlackButton ||
+    !copyMeetingPromptButton
+  ) {
     console.error("必要な要素が見つかりませんでした。");
     return;
   }
@@ -284,10 +292,49 @@
     }
   }
 
+  async function copyMeetingPrompt() {
+    clearStatus();
+
+    const promptText = `打ち合わせ議事録をください。
+- マークダウンで書くが、テキスト、見出し、箇条書きのみを使用する
+- 日本語
+- 発言者の情報は不要で、構造化した内容を以下の項目で記載する
+  - ■決定事項
+  - ■アクション
+  - ■重要な共有事項
+- 構造化のために箇条書きとインデントを使う
+- 会議のどの部分がソースか示すリンク（＝引用タグ）を書かない
+- 水平線（"---"、"***"、"___" など Markdown で横線と解釈される記法）を一切使用しない。
+- マークダウンで出力する`;
+
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(promptText);
+        showStatus("議事録プロンプトをコピーしました。ChatGPTなどに貼り付けてください。", "success");
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = promptText;
+        ta.setAttribute("readonly", "true");
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        ta.style.top = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        showStatus("議事録プロンプトをコピーしました（フォールバック）。", "success");
+      }
+    } catch (e) {
+      console.error(e);
+      showStatus("議事録プロンプトのコピーに失敗しました。", "error");
+    }
+  }
+
   // 入力のたびにリアルタイムで変換
   markdownInput.addEventListener("input", convertMarkdown);
   copyOnenoteButton.addEventListener("click", copyForOneNote);
   copySlackButton.addEventListener("click", copyForSlack);
+  copyMeetingPromptButton.addEventListener("click", copyMeetingPrompt);
 
   // 初期表示も空入力として一度変換しておく
   convertMarkdown();
